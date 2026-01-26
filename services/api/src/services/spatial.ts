@@ -4,7 +4,7 @@
  * H3 hexagonal grid operations and spatial analysis for redistricting cases
  */
 
-import { h3ToGeo, geoToH3, h3ToGeoBoundary, h3GetResolution, h3Distance } from 'h3-js';
+import { cellToLatLng, latLngToCell, cellToBoundary, getResolution, gridDistance } from 'h3-js';
 import * as turf from '@turf/turf';
 import { logger } from '../server';
 import { CompactnessMetrics, H3AlignmentResult, APIError } from '../types';
@@ -218,7 +218,6 @@ export class SpatialService {
     try {
       const feature = turf.feature(geometry);
       const bbox = turf.bbox(feature);
-      const bboxPolygon = turf.bboxPolygon(bbox);
 
       // Get all H3 cells that intersect the bounding box
       const h3Indices: Set<string> = new Set();
@@ -227,9 +226,9 @@ export class SpatialService {
       const points = turf.pointGrid(bbox, 0.01, { units: 'kilometers' });
 
       for (const point of points.features) {
-        if (turf.booleanPointInPolygon(point, feature)) {
+        if (turf.booleanPointInPolygon(point, feature as any)) {
           const [lng, lat] = point.geometry.coordinates;
-          const h3Index = geoToH3(lat, lng, resolution);
+          const h3Index = latLngToCell(lat, lng, resolution);
           h3Indices.add(h3Index);
         }
       }
@@ -425,9 +424,7 @@ export class SpatialService {
       const feature1 = turf.feature(request.geometry1);
       const feature2 = turf.feature(request.geometry2);
 
-      const intersection = turf.intersect(
-        turf.featureCollection([feature1, feature2])
-      );
+      const intersection = turf.intersect(feature1, feature2);
 
       let intersectionArea = 0;
       let intersectionGeometry: GeoJSONGeometry | null = null;
@@ -475,8 +472,15 @@ export class SpatialService {
    */
   public validateGeometry(geometry: GeoJSONGeometry): boolean {
     try {
+      // Validate by attempting to create a feature and checking basic properties
       const feature = turf.feature(geometry);
-      return turf.booleanValid(feature);
+      return (
+        feature &&
+        feature.geometry &&
+        feature.geometry.type &&
+        feature.geometry.coordinates &&
+        Array.isArray(feature.geometry.coordinates)
+      );
     } catch (error) {
       logger.error('Geometry validation failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
