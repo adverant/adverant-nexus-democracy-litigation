@@ -127,15 +127,19 @@ export class QueueService {
       });
     });
 
-    worker.on('progress', (job, progress: JobProgress) => {
+    worker.on('progress', (job, progress) => {
       logger.debug('Job progress', {
         jobId: job.id,
         jobType: job.name,
-        progress: progress.progress,
+        progress: typeof progress === 'object' && progress && 'progress' in progress ? progress.progress : progress,
       });
 
       // Emit progress via WebSocket
-      WebSocketService.getInstance().broadcast('job:progress', progress);
+      WebSocketService.getInstance().broadcast('job:progress', {
+        jobId: job.id,
+        progress: typeof progress === 'object' && progress && 'progress' in progress ? progress.progress : progress,
+        status: typeof progress === 'object' && progress && 'status' in progress ? progress.status : 'running'
+      });
     });
 
     this.workers.set(jobType, worker);

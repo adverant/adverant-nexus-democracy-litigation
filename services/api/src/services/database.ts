@@ -4,7 +4,7 @@
  * PostgreSQL connection pool and query utilities
  */
 
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { logger } from '../server';
 
 export class DatabaseService {
@@ -114,7 +114,7 @@ export class DatabaseService {
   /**
    * Execute a query
    */
-  public async query<T = any>(
+  public async query<T extends QueryResultRow = any>(
     text: string,
     params?: any[]
   ): Promise<QueryResult<T>> {

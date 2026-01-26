@@ -6,18 +6,14 @@
 
 import {
   addDays,
-  addBusinessDays,
   isWeekend,
   isBefore,
-  isAfter,
   differenceInDays,
-  parseISO,
   format,
   startOfDay,
-  endOfDay,
 } from 'date-fns';
 import { logger } from '../server';
-import { DeadlineType, Priority, APIError } from '../types';
+import { Priority, APIError } from '../types';
 
 /**
  * Court-specific rules
@@ -347,7 +343,7 @@ export class DeadlineCalcService {
    * Get holidays based on court rules
    */
   private getHolidays(
-    baseDate: Date,
+    _baseDate: Date,
     courtRules?: CourtRules,
     excludeHolidays: boolean = true
   ): Date[] {
