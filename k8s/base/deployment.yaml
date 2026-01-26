@@ -1,0 +1,197 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: democracy-litigation-api
+  namespace: nexus
+  labels:
+    app: democracy-litigation-api
+    component: backend
+    plugin: democracy-litigation
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: democracy-litigation-api
+  template:
+    metadata:
+      labels:
+        app: democracy-litigation-api
+        component: backend
+        plugin: democracy-litigation
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+        - name: api
+          image: localhost:5000/democracy-litigation-api:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: websocket
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "8080"
+            - name: HOST
+              value: "0.0.0.0"
+
+            # Database configuration
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: database-host
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: database-port
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: database-name
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: democracy-litigation-secrets
+                  key: database-user
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: democracy-litigation-secrets
+                  key: database-password
+
+            # Redis configuration
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: redis-host
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: redis-port
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: democracy-litigation-secrets
+                  key: redis-password
+
+            # External services
+            - name: GRAPHRAG_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: graphrag-url
+            - name: GRAPHRAG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: democracy-litigation-secrets
+                  key: graphrag-api-key
+
+            - name: DOCAI_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: docai-url
+            - name: DOCAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: democracy-litigation-secrets
+                  key: docai-api-key
+
+            # JWT configuration
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: democracy-litigation-secrets
+                  key: jwt-secret
+            - name: JWT_ISSUER
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: jwt-issuer
+            - name: JWT_AUDIENCE
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: jwt-audience
+
+            # File uploads
+            - name: UPLOAD_STORAGE_PATH
+              value: "/data/uploads"
+            - name: UPLOAD_MAX_FILE_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: upload-max-file-size
+
+            # CORS
+            - name: CORS_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: democracy-litigation-config
+                  key: cors-origin
+
+            # WebSocket
+            - name: WS_ENABLED
+              value: "true"
+            - name: WS_PATH
+              value: "/ws"
+
+            # Feature flags
+            - name: FEATURE_VRA_PRECEDENT_SEARCH
+              value: "true"
+            - name: FEATURE_DOCUMENT_TRIAGE
+              value: "true"
+            - name: FEATURE_H3_ALIGNMENT
+              value: "true"
+
+          volumeMounts:
+            - name: uploads
+              mountPath: /data/uploads
+
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: democracy-litigation-uploads

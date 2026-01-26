@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: democracy-litigation-config
+  namespace: nexus
+  labels:
+    app: democracy-litigation-api
+    component: backend
+    plugin: democracy-litigation
+data:
+  # Database
+  database-host: "nexus-postgres.nexus.svc.cluster.local"
+  database-port: "5432"
+  database-name: "nexus_auth"
+
+  # Redis
+  redis-host: "nexus-redis.nexus.svc.cluster.local"
+  redis-port: "6379"
+
+  # GraphRAG
+  graphrag-url: "http://nexus-graphrag.nexus.svc.cluster.local:9000"
+
+  # DocAI
+  docai-url: "http://nexus-docai.nexus.svc.cluster.local:8080"
+
+  # JWT
+  jwt-issuer: "https://api.adverant.ai"
+  jwt-audience: "democracy-litigation-api"
+
+  # File uploads
+  upload-max-file-size: "104857600"  # 100MB
+
+  # CORS
+  cors-origin: "https://dashboard.adverant.ai,http://localhost:3000"
+
+  # Rate limiting
+  rate-limit-read-max-requests: "60"
+  rate-limit-write-max-requests: "30"
+
+  # Logging
+  log-level: "info"
+  log-format: "json"
