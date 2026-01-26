@@ -30,7 +30,7 @@ The Democracy Litigation Plugin is a specialized AI platform designed for **voti
 │                                                                              │
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │                    CASE MANAGEMENT DASHBOARD                          │  │
-│  │  • 81+ Active Cases (VRA Section 2, redistricting, voter access)     │  │
+│  │  • n+ Active Cases (VRA Section 2, redistricting, voter access)     │  │
 │  │  • Real-time deadline tracking with cascade dependencies             │  │
 │  │  • Cross-case pattern detection and strategy coordination            │  │
 │  │  • Opposing counsel intelligence and litigation history              │  │
