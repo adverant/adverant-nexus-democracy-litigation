@@ -153,7 +153,7 @@ export class DatabaseService {
   /**
    * Execute a query and return first row
    */
-  public async queryOne<T = any>(
+  public async queryOne<T extends QueryResultRow = any>(
     text: string,
     params?: any[]
   ): Promise<T | null> {
@@ -164,7 +164,7 @@ export class DatabaseService {
   /**
    * Execute a query and return all rows
    */
-  public async queryMany<T = any>(
+  public async queryMany<T extends QueryResultRow = any>(
     text: string,
     params?: any[]
   ): Promise<T[]> {
