@@ -436,7 +436,6 @@ const timeline = await client.reconstructLegislativeHistory({
 
 This platform is specifically designed for:
 
-- **Marc Elias** and the **Elias Law Group**
 - Voting rights attorneys litigating VRA Section 2 cases
 - Civil rights organizations challenging redistricting plans
 - Pro bono counsel working on ballot access litigation
