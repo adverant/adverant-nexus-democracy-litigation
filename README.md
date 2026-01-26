@@ -1,6 +1,6 @@
 # Nexus Democracy Litigation Plugin
 
-> **AI-powered Voting Rights Act litigation platform for Marc Elias and the Elias Law Group**
+> **AI-powered Voting Rights Act litigation platform**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
@@ -9,7 +9,7 @@
 
 ## Overview
 
-The Democracy Litigation Plugin is a specialized AI platform designed for **voting rights litigation** under the Voting Rights Act (VRA). Built specifically for **Marc Elias** and the **Elias Law Group**, it provides comprehensive support for managing **81+ active cases** across federal and state courts.
+The Democracy Litigation Plugin is a specialized AI platform designed for **voting rights litigation** under the Voting Rights Act (VRA). It provides comprehensive support for managing **n-number of active cases** across federal and state courts.
 
 ### Key Features
 
