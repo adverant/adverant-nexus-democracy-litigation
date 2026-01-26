@@ -1,0 +1,190 @@
+{
+  "$schema": "https://api.adverant.ai/schemas/nexus-plugin-manifest-v1.json",
+  "id": "nexus-democracy-litigation",
+  "name": "Democracy Litigation",
+  "displayName": "Democracy Litigation Plugin",
+  "version": "1.0.0",
+  "description": "AI-powered Voting Rights Act litigation platform for Marc Elias and Elias Law Group - 81+ active cases with VRA-specific workflows, GeoAgent integration, and expert witness intelligence",
+  "author": {
+    "name": "Adverant Inc.",
+    "email": "engineering@adverant.ai",
+    "url": "https://adverant.ai"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adverant/adverant-nexus-democracy-litigation"
+  },
+  "keywords": [
+    "voting-rights",
+    "vra",
+    "section-2",
+    "gingles",
+    "redistricting",
+    "rpv-analysis",
+    "legislative-history",
+    "expert-witness",
+    "census-alignment",
+    "h3-hexagonal-grid",
+    "compactness-metrics",
+    "multi-state-litigation",
+    "discovery-triage",
+    "marc-elias",
+    "elias-law-group"
+  ],
+  "categories": [
+    "legal",
+    "litigation",
+    "civil-rights",
+    "geographic-analysis"
+  ],
+  "visibility": "public",
+  "status": "beta",
+  "executionMode": "mcp_container",
+  "runtime": {
+    "engine": "node",
+    "version": ">=20.0.0"
+  },
+  "entrypoint": {
+    "type": "http",
+    "port": 8080,
+    "healthCheck": "/health",
+    "readinessCheck": "/ready",
+    "livenessCheck": "/live"
+  },
+  "api": {
+    "version": "v1",
+    "basePath": "/api/v1/democracy-litigation",
+    "documentation": "/api/docs",
+    "openapi": "/api/openapi.json"
+  },
+  "websocket": {
+    "enabled": true,
+    "path": "/ws",
+    "events": [
+      "document:uploaded",
+      "document:triaged",
+      "case:updated",
+      "deadline:approaching",
+      "research:completed",
+      "expert:report:generated"
+    ]
+  },
+  "ui": {
+    "enabled": true,
+    "path": "/ui",
+    "framework": "react",
+    "entry": "/ui/index.html",
+    "components": [
+      {
+        "name": "case-dashboard",
+        "description": "81+ case management dashboard",
+        "type": "page"
+      },
+      {
+        "name": "geoagent-embed",
+        "description": "GeoAgent iframe integration (~500 LOC)",
+        "type": "iframe"
+      },
+      {
+        "name": "document-triage",
+        "description": "AI-powered discovery triage",
+        "type": "panel"
+      },
+      {
+        "name": "vra-research",
+        "description": "Section 2 precedent search",
+        "type": "panel"
+      },
+      {
+        "name": "expert-database",
+        "description": "Expert witness track records",
+        "type": "panel"
+      },
+      {
+        "name": "deadline-tracker",
+        "description": "Multi-state deadline calendar",
+        "type": "panel"
+      }
+    ]
+  },
+  "dependencies": {
+    "services": [
+      {
+        "name": "nexus-graphrag",
+        "version": ">=1.0.0",
+        "required": true,
+        "purpose": "VRA precedent knowledge graph"
+      },
+      {
+        "name": "nexus-geoagent",
+        "version": ">=1.0.0",
+        "required": true,
+        "purpose": "Geographic analysis via iframe integration"
+      },
+      {
+        "name": "nexus-mageagent",
+        "version": ">=1.0.0",
+        "required": false,
+        "purpose": "Multi-agent orchestration"
+      }
+    ]
+  },
+  "resources": {
+    "requests": {
+      "cpu": "500m",
+      "memory": "1Gi",
+      "ephemeralStorage": "500Mi"
+    },
+    "limits": {
+      "cpu": "2000m",
+      "memory": "4Gi",
+      "ephemeralStorage": "10Gi"
+    }
+  },
+  "volumes": [
+    {
+      "name": "documents",
+      "mountPath": "/data/documents",
+      "size": "100Gi",
+      "persistent": true
+    },
+    {
+      "name": "output",
+      "mountPath": "/data/output",
+      "size": "20Gi",
+      "persistent": true
+    }
+  ],
+  "environment": {
+    "required": [
+      "NEXUS_API_KEY",
+      "DATABASE_URL",
+      "NEXUS_GRAPHRAG_URL",
+      "GEOAGENT_BASE_URL"
+    ],
+    "optional": [
+      "OPENROUTER_API_KEY",
+      "MAX_DOCUMENT_SIZE_MB",
+      "TRIAGE_BATCH_SIZE"
+    ]
+  },
+  "security": {
+    "runAsNonRoot": true,
+    "readOnlyRootFilesystem": false,
+    "allowPrivilegeEscalation": false,
+    "capabilities": {
+      "drop": ["ALL"]
+    }
+  },
+  "metrics": {
+    "enabled": true,
+    "path": "/metrics",
+    "port": 8080
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "outputs": ["stdout"]
+  }
+}

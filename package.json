@@ -1,0 +1,28 @@
+{
+  "name": "@adverant/democracy-litigation-plugin",
+  "version": "1.0.0",
+  "description": "AI-powered Voting Rights Act litigation platform for Marc Elias and Elias Law Group",
+  "author": "Adverant Inc. <engineering@adverant.ai>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adverant/adverant-nexus-democracy-litigation.git"
+  },
+  "keywords": [
+    "voting-rights",
+    "vra",
+    "litigation",
+    "redistricting",
+    "geoagent"
+  ],
+  "scripts": {
+    "dev": "echo 'See ui/ and services/ directories for development'",
+    "build": "echo 'See ui/ and services/ directories for builds'",
+    "test": "echo 'Tests not yet implemented'",
+    "lint": "echo 'Linting not yet configured'"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
