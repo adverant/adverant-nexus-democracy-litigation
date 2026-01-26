@@ -36,9 +36,6 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-            - name: websocket
-              containerPort: 8080
-              protocol: TCP
           env:
             - name: NODE_ENV
               value: "production"
