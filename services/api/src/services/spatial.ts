@@ -4,7 +4,7 @@
  * H3 hexagonal grid operations and spatial analysis for redistricting cases
  */
 
-import { cellToLatLng, latLngToCell, cellToBoundary, getResolution, gridDistance } from 'h3-js';
+import { latLngToCell } from 'h3-js';
 import * as turf from '@turf/turf';
 import { logger } from '../server';
 import { CompactnessMetrics, H3AlignmentResult, APIError } from '../types';
@@ -424,7 +424,7 @@ export class SpatialService {
       const feature1 = turf.feature(request.geometry1);
       const feature2 = turf.feature(request.geometry2);
 
-      const intersection = turf.intersect(feature1, feature2);
+      const intersection = turf.intersect(feature1 as any, feature2 as any);
 
       let intersectionArea = 0;
       let intersectionGeometry: GeoJSONGeometry | null = null;

@@ -252,27 +252,27 @@ export class QueueService {
     return { triaged: params.documentIds?.length || 0 };
   }
 
-  private async handleLegislativeHistory(job: Job, params: any): Promise<any> {
+  private async handleLegislativeHistory(job: Job, _params: any): Promise<any> {
     await job.updateProgress({ progress: 50, status: 'extracting_timeline' });
     return { timelineEvents: 0 };
   }
 
-  private async handleVRAAnalysis(job: Job, params: any): Promise<any> {
+  private async handleVRAAnalysis(job: Job, _params: any): Promise<any> {
     await job.updateProgress({ progress: 50, status: 'analyzing_precedents' });
     return { precedentsFound: 0 };
   }
 
-  private async handleCompactnessCalculation(job: Job, params: any): Promise<any> {
+  private async handleCompactnessCalculation(job: Job, _params: any): Promise<any> {
     await job.updateProgress({ progress: 50, status: 'calculating_metrics' });
     return { metrics: {} };
   }
 
-  private async handleH3Alignment(job: Job, params: any): Promise<any> {
+  private async handleH3Alignment(job: Job, _params: any): Promise<any> {
     await job.updateProgress({ progress: 50, status: 'aligning_geometries' });
     return { crosswalkSize: 0 };
   }
 
-  private async handleExpertReportGeneration(job: Job, params: any): Promise<any> {
+  private async handleExpertReportGeneration(job: Job, _params: any): Promise<any> {
     await job.updateProgress({ progress: 50, status: 'generating_report' });
     return { reportGenerated: true };
   }
@@ -356,7 +356,8 @@ export class QueueService {
       return null;
     }
 
-    return await queue.getJob(jobId);
+    const job = await queue.getJob(jobId);
+    return job || null;
   }
 
   /**
