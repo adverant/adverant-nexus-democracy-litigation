@@ -30,8 +30,8 @@ spec:
         fsGroup: 1001
       containers:
         - name: api
-          image: localhost:5000/democracy-litigation-api:latest
-          imagePullPolicy: Always
+          image: localhost:5000/democracy-litigation-api:democracy-litigation-api-20260126-165802-7d7242c
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
