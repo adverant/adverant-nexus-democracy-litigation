@@ -9,7 +9,7 @@ metadata:
     plugin: democracy-litigation
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 100Gi
