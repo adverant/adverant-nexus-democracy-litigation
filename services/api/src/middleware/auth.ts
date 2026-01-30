@@ -10,8 +10,35 @@ import { AuthenticationError, JWTPayload, AuthenticatedRequest } from '../types'
 import { logger } from '../server';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'development_secret_change_in_production';
-const JWT_ISSUER = process.env.JWT_ISSUER || 'https://api.adverant.ai';
-const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'democracy-litigation-api';
+const JWT_ISSUER = process.env.JWT_ISSUER || '';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || '';
+
+/**
+ * Build JWT verification options - only include issuer/audience if configured
+ */
+function getVerifyOptions(): jwt.VerifyOptions {
+  const options: jwt.VerifyOptions = {};
+  if (JWT_ISSUER) {
+    options.issuer = JWT_ISSUER;
+  }
+  if (JWT_AUDIENCE) {
+    options.audience = JWT_AUDIENCE;
+  }
+  return options;
+}
+
+/**
+ * Extract user ID from JWT payload - supports multiple claim names
+ * Nexus auth may use: userId, user_id, sub, or id
+ */
+function extractUserId(payload: Record<string, unknown>): string | undefined {
+  return (
+    (payload.userId as string) ||
+    (payload.user_id as string) ||
+    (payload.sub as string) ||
+    (payload.id as string)
+  );
+}
 
 /**
  * Extract and validate JWT token from Authorization header
@@ -39,31 +66,45 @@ export function authMiddleware(
       throw new AuthenticationError('No token provided');
     }
 
-    // Verify and decode JWT
-    const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    }) as JWTPayload;
+    // Verify and decode JWT - only validate issuer/audience if configured
+    const decoded = jwt.verify(token, JWT_SECRET, getVerifyOptions()) as Record<string, unknown>;
+
+    // Extract userId from various possible claim names
+    const userId = extractUserId(decoded);
+    const email = decoded.email as string;
 
     // Validate required fields
-    if (!decoded.userId || !decoded.email) {
-      throw new AuthenticationError('Invalid token payload: missing required fields');
+    if (!userId) {
+      throw new AuthenticationError('Invalid token payload: missing user ID');
     }
 
     // Check token expiration (jwt.verify already checks this, but explicit check for clarity)
     const now = Math.floor(Date.now() / 1000);
-    if (decoded.exp && decoded.exp < now) {
+    const exp = decoded.exp as number | undefined;
+    if (exp && exp < now) {
       throw new AuthenticationError('Token has expired');
     }
 
+    // Build JWTPayload from decoded token - normalize claim names
+    const userPayload: JWTPayload = {
+      userId,
+      email: email || (decoded.email as string) || '',
+      role: (decoded.role as string) || 'user',
+      tier: (decoded.tier as string) || (decoded.subscription_tier as string) || 'free',
+      iss: (decoded.iss as string) || '',
+      aud: (decoded.aud as string) || '',
+      exp: exp || 0,
+      iat: (decoded.iat as number) || 0,
+    };
+
     // Attach user context to request
-    (req as AuthenticatedRequest).user = decoded;
+    (req as AuthenticatedRequest).user = userPayload;
 
     logger.debug('User authenticated', {
-      userId: decoded.userId,
-      email: decoded.email,
-      role: decoded.role,
-      tier: decoded.tier,
+      userId: userPayload.userId,
+      email: userPayload.email,
+      role: userPayload.role,
+      tier: userPayload.tier,
     });
 
     next();
@@ -132,12 +173,27 @@ export function optionalAuthMiddleware(
       return next();
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    }) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET, getVerifyOptions()) as Record<string, unknown>;
 
-    (req as AuthenticatedRequest).user = decoded;
+    // Extract userId from various possible claim names
+    const userId = extractUserId(decoded);
+    if (!userId) {
+      return next(); // Optional auth - continue without user if no userId
+    }
+
+    // Build JWTPayload from decoded token
+    const userPayload: JWTPayload = {
+      userId,
+      email: (decoded.email as string) || '',
+      role: (decoded.role as string) || 'user',
+      tier: (decoded.tier as string) || (decoded.subscription_tier as string) || 'free',
+      iss: (decoded.iss as string) || '',
+      aud: (decoded.aud as string) || '',
+      exp: (decoded.exp as number) || 0,
+      iat: (decoded.iat as number) || 0,
+    };
+
+    (req as AuthenticatedRequest).user = userPayload;
 
     next();
   } catch (error) {
